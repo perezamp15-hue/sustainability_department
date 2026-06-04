@@ -3,205 +3,232 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Waste Wisely Filterable Insights</title>
+    <title>Waste Wisely Executive Environmental Insights</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen">
 
-    <header class="bg-red-700 text-white shadow-md p-6 mb-6">
-        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <header class="bg-red-700 text-white shadow-md p-6 mb-8">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div>
-                <h1 class="text-3xl font-extrabold tracking-tight">Waste Wisely Dashboard</h1>
-                <p class="text-red-100 text-sm mt-1">Keck Medicine Logistics Analytics Portal</p>
+                <h1 class="text-3xl font-extrabold tracking-tight">Waste Wisely Insights Dashboard</h1>
+                <p class="text-red-100 text-sm mt-1">Keck Medicine • Operational Logistics & Sustainability Metrics</p>
             </div>
             
-            <div class="bg-white/10 p-2.5 rounded-xl backdrop-blur-sm border border-white/10 w-full md:w-64">
-                <label for="materialFilter" class="block text-xs font-bold uppercase text-red-200 mb-1">Filter by Material Class</label>
-                <select id="materialFilter" class="bg-white text-slate-900 text-sm rounded-lg block w-full p-2 border-0 focus:ring-2 focus:ring-red-400 outline-none">
-                    <option value="ALL">Show All Waste Streams</option>
-                </select>
+            <div class="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+                <div class="bg-white/10 p-2 rounded-xl backdrop-blur-sm border border-white/10 min-w-[200px]">
+                    <label for="locationFilter" class="block text-[10px] font-bold uppercase text-red-200 mb-1">Filter Facility Location</label>
+                    <select id="locationFilter" class="bg-white text-slate-900 text-xs rounded-lg block w-full p-2 border-0 outline-none">
+                        <option value="ALL">All Facilities combined</option>
+                    </select>
+                </div>
+
+                <div class="bg-white/10 p-2 rounded-xl backdrop-blur-sm border border-white/10 min-w-[200px]">
+                    <label for="materialFilter" class="block text-[10px] font-bold uppercase text-red-200 mb-1">Filter Material Class</label>
+                    <select id="materialFilter" class="bg-white text-slate-900 text-xs rounded-lg block w-full p-2 border-0 outline-none">
+                        <option value="ALL">All Material Classes combined</option>
+                    </select>
+                </div>
             </div>
         </div>
     </header>
 
     <main class="max-w-6xl mx-auto px-4 pb-16">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Volume</p>
-                <h3 class="text-3xl font-black text-slate-900 mt-2" id="kpi-weight">0 <span class="text-sm font-medium text-slate-500">lbs</span></h3>
-            </div>
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Expenditures</p>
-                <h3 class="text-3xl font-black text-emerald-600 mt-2" id="kpi-cost">$0.00</h3>
-            </div>
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Active Logs Filtered</p>
-                <h3 class="text-3xl font-black text-slate-900 mt-2" id="kpi-records">0</h3>
+        
+        <div class="max-w-md mx-auto mb-10">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-6 text-center">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Total Evaluated Waste Volume</p>
+                <h3 class="text-5xl font-black text-slate-900 tracking-tight mt-2" id="kpi-weight">0 <span class="text-lg font-medium text-slate-500">lbs</span></h3>
+                <p class="text-slate-400 text-xs mt-2">Adjusting filters instantly computes cumulative values across selected sets.</p>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
             <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col h-[400px]">
-                <h2 class="text-lg font-bold text-slate-900 mb-2">Disposal Timeline Insights</h2>
+                <h2 class="text-base font-bold text-slate-900 mb-1">Disposal Timeline Trends</h2>
+                <p class="text-slate-400 text-xs mb-4">Monthly historical volume outputs tracked sequentially.</p>
                 <div class="relative flex-1 min-h-0 w-full">
                     <canvas id="timelineChart"></canvas>
                 </div>
             </div>
 
             <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col h-[400px]">
-                <h2 class="text-lg font-bold text-slate-900 mb-2">Volume Distribution by Facility Site</h2>
+                <h2 class="text-base font-bold text-slate-900 mb-1">Annual Structural Waste Summary</h2>
+                <p class="text-slate-400 text-xs mb-4">Comparison of overall categorical waste weights across calendar years.</p>
                 <div class="relative flex-1 min-h-0 w-full">
-                    <canvas id="siteChart"></canvas>
+                    <canvas id="annualStackedChart"></canvas>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-            <h2 class="text-lg font-bold text-slate-900 mb-1">Manifest Logistics Log</h2>
-            <p class="text-slate-400 text-xs mb-4">Detailed breakdown of materials, collection sites, and costs.</p>
-            
-            <div class="overflow-x-auto rounded-xl border border-slate-100">
-                <table class="w-full text-sm text-left text-slate-500">
-                    <thead class="text-xs text-slate-700 uppercase bg-slate-50 border-b border-slate-100">
-                        <tr>
-                            <th class="px-4 py-3">Month</th>
-                            <th class="px-4 py-3">Facility Site & Address</th>
-                            <th class="px-4 py-3">Specific Material</th>
-                            <th class="px-4 py-3 text-right">Weight</th>
-                            <th class="px-4 py-3 text-right">Cost</th>
-                        </tr>
-                    </thead>
-                    <tbody id="manifestTableBody" class="divide-y divide-slate-100">
-                        </tbody>
-                </table>
+        <div class="bg-slate-100 border border-slate-200 rounded-2xl p-6">
+            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-2">How Waste Sourcing is Monitored & Modeled</h3>
+            <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                This asset parses raw structured manifests directly tied to shipping logs. Data flows through a four-tier synchronization model:
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
+                <div class="bg-white p-3 rounded-xl shadow-2xs border border-slate-200/50">
+                    <div class="text-red-700 font-bold text-sm mb-1">Step 1: Manifesting</div>
+                    <div class="text-[11px] text-slate-500">Logistics items get assigned individual tracking IDs, sites, weights, and category tags at processing docks.</div>
+                </div>
+                <div class="bg-white p-3 rounded-xl shadow-2xs border border-slate-200/50">
+                    <div class="text-red-700 font-bold text-sm mb-1">Step 2: Aggregation</div>
+                    <div class="text-[11px] text-slate-500">Manifest entries get compiled inside your shared Keck Medicine database workbook tabs.</div>
+                </div>
+                <div class="bg-white p-3 rounded-xl shadow-2xs border border-slate-200/50">
+                    <div class="text-red-700 font-bold text-sm mb-1">Step 3: Compilation</div>
+                    <div class="text-[11px] text-slate-500">Automated Python jobs extract records daily, standardizing whitespace variations across the system.</div>
+                </div>
+                <div class="bg-white p-3 rounded-xl shadow-2xs border border-slate-200/50">
+                    <div class="text-red-700 font-bold text-sm mb-1">Step 4: Insights</div>
+                    <div class="text-[11px] text-slate-500">The frontend transforms the structured data array to compute volume summaries on demand.</div>
+                </div>
             </div>
         </div>
     </main>
 
     <script>
-        let rawData = [];
+        let rawRecords = [];
+        let distinctClasses = [];
         let timelineChartInstance = null;
-        let siteChartInstance = null;
+        let annualChartInstance = null;
+
+        // Custom palette for categories
+        const palette = ['#b91c1c', '#1e293b', '#d97706', '#0d9488', '#4f46e5', '#ec4899', '#84cc16', '#6b7280'];
 
         fetch('./dashboard_data.json')
             .then(res => res.json())
             .then(payload => {
-                rawData = payload.records;
-                
-                const selectElement = document.getElementById('materialFilter');
-                payload.material_classes.forEach(type => {
-                    const opt = document.createElement('option');
-                    opt.value = type;
-                    opt.textContent = type;
-                    selectElement.appendChild(opt);
+                rawRecords = payload.records;
+                distinctClasses = payload.material_classes;
+
+                // Build Location Dropdown Options
+                const locSelect = document.getElementById('locationFilter');
+                payload.site_locations.forEach(loc => {
+                    const el = document.createElement('option');
+                    el.value = loc;
+                    el.textContent = loc;
+                    locSelect.appendChild(el);
                 });
 
-                selectElement.addEventListener('change', renderDashboard);
-                renderDashboard();
+                // Build Material Class Dropdown Options
+                const matSelect = document.getElementById('materialFilter');
+                distinctClasses.forEach(cls => {
+                    const el = document.createElement('option');
+                    el.value = cls;
+                    el.textContent = cls;
+                    matSelect.appendChild(el);
+                });
+
+                // Listen for filter selections
+                locSelect.addEventListener('change', renderDashboardComponents);
+                matSelect.addEventListener('change', renderDashboardComponents);
+
+                renderDashboardComponents();
             });
 
-        function renderDashboard() {
-            const selectedFilter = document.getElementById('materialFilter').value;
-            
-            const filteredData = selectedFilter === "ALL" 
-                ? rawData 
-                : rawData.filter(row => row['Material Class'] === selectedFilter);
+        function renderDashboardComponents() {
+            const locFilter = document.getElementById('locationFilter').value;
+            const matFilter = document.getElementById('materialFilter').value;
 
+            // Apply filters to dataset
+            const filtered = rawRecords.filter(row => {
+                const matchLoc = (locFilter === "ALL" || row['Site Name'] === locFilter);
+                const matchMat = (matFilter === "ALL" || row['Material Class'] === matFilter);
+                return matchLoc && matchMat;
+            });
+
+            // Recompute Total Cumulative Volume KPI
             let totalWeight = 0;
-            let totalCost = 0;
-            let siteGroups = {};
-            let timelineGroups = {};
+            let monthlyMap = {};
             
-            // Clear the existing data log table rows
-            const tableBody = document.getElementById('manifestTableBody');
-            tableBody.innerHTML = "";
+            // Nested structure for annual stack map: year -> material_class -> total weight
+            let annualMap = { "2024": {}, "2025": {}, "2026": {} };
 
-            filteredData.forEach((row, index) => {
+            // Initialize all possible distinct categories to zero across year structures
+            distinctClasses.forEach(cls => {
+                annualMap["2024"][cls] = 0;
+                annualMap["2025"][cls] = 0;
+                annualMap["2026"][cls] = 0;
+            });
+
+            filtered.forEach(row => {
                 const w = row['Weight (lbs)'];
-                const c = row['Cost'];
-                const site = row['Site Name'] || "Unknown Site";
-                const addr = row['address'] || "No Address";
-                const mat = row['Material'] || "Unknown Item";
-                const date = row['MonthYear'];
+                const m = row['MonthYear'];
+                const y = row['Year'];
+                const cls = row['Material Class'];
 
                 totalWeight += w;
-                totalCost += c;
 
-                siteGroups[site] = (siteGroups[site] || 0) + w;
-                
-                if(!timelineGroups[date]) {
-                    timelineGroups[date] = { lbs: 0, cost: 0 };
-                }
-                timelineGroups[date].lbs += w;
-                timelineGroups[date].cost += c;
+                // Populate monthly chronological array sets
+                monthlyMap[m] = (monthlyMap[m] || 0) + w;
 
-                // INJECT ROW TO TABLE (Limit to top 150 rows for dashboard speed)
-                if (index < 150) {
-                    const tr = document.createElement('tr');
-                    tr.className = "hover:bg-slate-50/80 transition-colors";
-                    tr.innerHTML = `
-                        <td class="px-4 py-3 font-medium text-slate-900">${date}</td>
-                        <td class="px-4 py-3">
-                            <div class="font-semibold text-slate-800">${site}</div>
-                            <div class="text-xs text-slate-400 mt-0.5">${addr}</div>
-                        </td>
-                        <td class="px-4 py-3 font-mono text-xs text-slate-600">${mat}</td>
-                        <td class="px-4 py-3 text-right font-medium">${Math.round(w).toLocaleString()} lbs</td>
-                        <td class="px-4 py-3 text-right font-semibold text-emerald-600">${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(c)}</td>
-                    `;
-                    tableBody.appendChild(tr);
+                // Populate annual tracking metrics
+                if (annualMap[y] && annualMap[y].hasOwnProperty(cls)) {
+                    annualMap[y][cls] += w;
                 }
             });
 
-            // Update KPI views
+            // Update Primary Numeric Label
             document.getElementById('kpi-weight').innerHTML = `${Math.round(totalWeight).toLocaleString()} <span class="text-sm font-medium text-slate-500">lbs</span>`;
-            document.getElementById('kpi-cost').textContent = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(totalCost);
-            document.getElementById('kpi-records').textContent = filteredData.length.toLocaleString();
 
-            // Timeline calculations
-            const sortedMonths = Object.keys(timelineGroups).sort();
-            const timelineLbs = sortedMonths.map(m => timelineGroups[m].lbs);
-            const timelineCosts = sortedMonths.map(m => timelineGroups[m].cost);
+            // 1. Process Timeline Linear Visual Component
+            const sortedMonths = Object.keys(monthlyMap).sort();
+            const monthlyWeights = sortedMonths.map(m => monthlyMap[m]);
 
             if (timelineChartInstance) timelineChartInstance.destroy();
             timelineChartInstance = new Chart(document.getElementById('timelineChart').getContext('2d'), {
                 type: 'line',
                 data: {
                     labels: sortedMonths,
-                    datasets: [
-                        { label: 'Weight (lbs)', data: timelineLbs, borderColor: 'rgb(59, 130, 246)', backgroundColor: 'rgba(59, 130, 246, 0.05)', tension: 0.1, yAxisID: 'y' },
-                        { label: 'Cost ($)', data: timelineCosts, borderColor: 'rgb(16, 185, 129)', backgroundColor: 'transparent', tension: 0.1, yAxisID: 'y1' }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: { type: 'linear', display: true, position: 'left' },
-                        y1: { type: 'linear', display: true, position: 'right', grid: { drawOnChartArea: false } }
-                    }
-                }
-            });
-
-            // Site calculations
-            const siteLabels = Object.keys(siteGroups);
-            const siteValues = Object.values(siteGroups);
-
-            if (siteChartInstance) siteChartInstance.destroy();
-            siteChartInstance = new Chart(document.getElementById('siteChart').getContext('2d'), {
-                type: 'doughnut',
-                data: {
-                    labels: siteLabels,
                     datasets: [{
-                        data: siteValues,
-                        backgroundColor: ['#b91c1c', '#1e293b', '#d97706', '#0d9488', '#4f46e5', '#ec4899', '#84cc16']
+                        label: 'Aggregated Pounds (lbs)',
+                        data: monthlyWeights,
+                        borderColor: 'rgb(185, 28, 28)',
+                        backgroundColor: 'rgba(185, 28, 28, 0.04)',
+                        borderWidth: 2.5,
+                        tension: 0.15,
+                        fill: true
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, padding: 12 } } }
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // 2. Process Stacked Column Charts Components
+            const yearsArray = ["2024", "2025", "2026"];
+            
+            // Re-map category properties to individual data blocks
+            const stackedDatasets = distinctClasses.map((cls, idx) => {
+                return {
+                    label: cls,
+                    data: yearsArray.map(yr => annualMap[yr][cls]),
+                    backgroundColor: palette[idx % palette.length],
+                    barThickness: 45
+                };
+            });
+
+            if (annualChartInstance) annualChartInstance.destroy();
+            annualChartInstance = new Chart(document.getElementById('annualStackedChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: yearsArray,
+                    datasets: stackedDatasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { stacked: true },
+                        y: { stacked: true, title: { display: true, text: 'Total Pounds' } }
+                    },
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }
+                    }
                 }
             });
         }
