@@ -31,44 +31,52 @@ def run_pipeline():
                 print(f"Skipped local file {f}: {e}")
 
     if not all_dfs:
-        print("Error: No data found.")
+        print("Error: No data structures found to process.")
         return
 
     df = pd.concat(all_dfs, ignore_index=True)
     df.dropna(how='all', inplace=True)
-    df.columns = df.columns.str.strip()
     
-    # Check that our exact Excel columns exist
-    required_cols = ['Service Date', 'Site Name', 'Weight (lbs)', 'Cost', 'Material Class']
+    # Clean up column spaces
+    df.columns = df.columns.str.strip().str.replace(r'\s+', ' ', regex=True)
+
+    # Required columns now include your three new fields
+    required_cols = ['Service Date', 'Site Name', 'address', 'Material', 'Material Class', 'Weight (lbs)', 'Cost']
     for col in required_cols:
         if col not in df.columns:
-            raise KeyError(f"Missing column: '{col}'. Ensure it matches your Excel headers.")
+            print(f"Available columns found: {list(df.columns)}")
+            raise KeyError(f"Missing required data column: '{col}'. Check your spreadsheet header labels.")
 
     df.drop_duplicates(inplace=True)
     
-    # Data Formatting
+    # Process and sanitize fields
     df['Service Date'] = pd.to_datetime(df['Service Date'], errors='coerce')
     df = df.dropna(subset=['Service Date'])
+    
     df['Weight (lbs)'] = pd.to_numeric(df['Weight (lbs)'], errors='coerce').fillna(0)
     df['Cost'] = pd.to_numeric(df['Cost'], errors='coerce').fillna(0)
+    
+    # Sanitize the new textual tracking columns
+    df['address'] = df['address'].astype(str).str.strip().fillna('No Address Listed')
+    df['Material'] = df['Material'].astype(str).str.strip().fillna('Unknown Material')
     df['Material Class'] = df['Material Class'].astype(str).str.strip().fillna('Unclassified')
+    df['Site Name'] = df['Site Name'].astype(str).str.strip().fillna('Unknown Site')
+    
     df['MonthYear'] = df['Service Date'].dt.to_period('M').astype(str)
     
-    # Output the raw cleaned records so the JavaScript dashboard can handle dynamic filtering
-    raw_records = df[['MonthYear', 'Site Name', 'Material Class', 'Weight (lbs)', 'Cost']].to_dict(orient='records')
-    
-    # Get a distinct list of waste material types to generate our dashboard filter options
-    material_types = sorted(list(df['Material Class'].unique()))
+    # Package clean dataset items for frontend rendering
+    raw_records = df[['MonthYear', 'Site Name', 'address', 'Material', 'Material Class', 'Weight (lbs)', 'Cost']].to_dict(orient='records')
+    material_classes = sorted([t for t in df['Material Class'].unique() if t and t != 'nan'])
     
     dashboard_payload = {
-        "material_types": material_types,
+        "material_classes": material_classes,
         "records": raw_records
     }
     
     with open("dashboard_data.json", "w") as f:
         json.dump(dashboard_payload, f, indent=4)
         
-    print(f"Successfully processed {len(raw_records)} rows for dynamic filtering.")
+    print(f"Data consolidation successful! Added extra dimensions for {len(raw_records)} unique manifest records.")
 
 if __name__ == "__main__":
     run_pipeline()
