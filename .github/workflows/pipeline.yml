@@ -5,12 +5,18 @@ on:
     - cron: '0 0 * * *'  # Runs nightly
   push:
     paths:
-      - 'raw_data_inputs/**'  # Runs IMMEDIATELY whenever you upload a new file to this folder
+      - 'raw_data_inputs/**'  # Runs when files are added to this folder
   workflow_dispatch:
 
 jobs:
   refresh-data:
     runs-on: ubuntu-latest
+    
+    # ─── ADD THIS PERMISSIONS BLOCK HERE ───
+    permissions:
+      contents: write    # Grants the bot permission to push dashboard_data.json back to your repo
+    # ───────────────────────────────────────
+
     steps:
     - name: Check out repo code
       uses: actions/checkout@v4
