@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Waste Wisely Executive Environmental Insights</title>
+    <title>Waste Wisely Environmental Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -40,7 +40,7 @@
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-6 text-center">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Total Evaluated Waste Volume</p>
                 <h3 class="text-5xl font-black text-slate-900 tracking-tight mt-2" id="kpi-weight">0 <span class="text-lg font-medium text-slate-500">lbs</span></h3>
-                <p class="text-slate-400 text-xs mt-2">Adjusting filters instantly computes cumulative values across selected sets.</p>
+                <p class="text-slate-400 text-xs mt-2">Adjusting dropdown filters computes cumulative records on demand.</p>
             </div>
         </div>
 
@@ -55,7 +55,7 @@
 
             <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col h-[400px]">
                 <h2 class="text-base font-bold text-slate-900 mb-1">Annual Structural Waste Summary</h2>
-                <p class="text-slate-400 text-xs mb-4">Comparison of overall categorical waste weights across calendar years.</p>
+                <p class="text-slate-400 text-xs mb-4">Comparison of categorical waste weights across calendar years.</p>
                 <div class="relative flex-1 min-h-0 w-full">
                     <canvas id="annualStackedChart"></canvas>
                 </div>
@@ -65,24 +65,24 @@
         <div class="bg-slate-100 border border-slate-200 rounded-2xl p-6">
             <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-2">How Waste Sourcing is Monitored & Modeled</h3>
             <p class="text-xs text-slate-600 leading-relaxed mb-4">
-                This asset parses raw structured manifests directly tied to shipping logs. Data flows through a four-tier synchronization model:
+                This environment compiles shipping logs to map systemic sustainability trends. Data synchronizes across a four-tier architecture:
             </p>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
-                <div class="bg-white p-3 rounded-xl shadow-2xs border border-slate-200/50">
-                    <div class="text-red-700 font-bold text-sm mb-1">Step 1: Manifesting</div>
-                    <div class="text-[11px] text-slate-500">Logistics items get assigned individual tracking IDs, sites, weights, and category tags at processing docks.</div>
+                <div class="bg-white p-3 rounded-xl shadow-xs border border-slate-200/50">
+                    <div class="text-red-700 font-bold text-sm mb-1">1. Manifest Entry</div>
+                    <div class="text-[11px] text-slate-500">Logistics teams assign tracking IDs, locations, weights, and categories at delivery docks.</div>
                 </div>
-                <div class="bg-white p-3 rounded-xl shadow-2xs border border-slate-200/50">
-                    <div class="text-red-700 font-bold text-sm mb-1">Step 2: Aggregation</div>
-                    <div class="text-[11px] text-slate-500">Manifest entries get compiled inside your shared Keck Medicine database workbook tabs.</div>
+                <div class="bg-white p-3 rounded-xl shadow-xs border border-slate-200/50">
+                    <div class="text-red-700 font-bold text-sm mb-1">2. Aggregation</div>
+                    <div class="text-[11px] text-slate-500">Manifest details sync directly inside your shared database master spreadsheet tabs.</div>
                 </div>
-                <div class="bg-white p-3 rounded-xl shadow-2xs border border-slate-200/50">
-                    <div class="text-red-700 font-bold text-sm mb-1">Step 3: Compilation</div>
-                    <div class="text-[11px] text-slate-500">Automated Python jobs extract records daily, standardizing whitespace variations across the system.</div>
+                <div class="bg-white p-3 rounded-xl shadow-xs border border-slate-200/50">
+                    <div class="text-red-700 font-bold text-sm mb-1">3. Compilation</div>
+                    <div class="text-[11px] text-slate-500">Automated Python workflows validate and strip extra whitespace out of row indices daily.</div>
                 </div>
-                <div class="bg-white p-3 rounded-xl shadow-2xs border border-slate-200/50">
-                    <div class="text-red-700 font-bold text-sm mb-1">Step 4: Insights</div>
-                    <div class="text-[11px] text-slate-500">The frontend transforms the structured data array to compute volume summaries on demand.</div>
+                <div class="bg-white p-3 rounded-xl shadow-xs border border-slate-200/50">
+                    <div class="text-red-700 font-bold text-sm mb-1">4. Visual Analysis</div>
+                    <div class="text-[11px] text-slate-500">Frontend frameworks break down volume summaries and stack annual variables interactively.</div>
                 </div>
             </div>
         </div>
@@ -94,7 +94,6 @@
         let timelineChartInstance = null;
         let annualChartInstance = null;
 
-        // Custom palette for categories
         const palette = ['#b91c1c', '#1e293b', '#d97706', '#0d9488', '#4f46e5', '#ec4899', '#84cc16', '#6b7280'];
 
         fetch('./dashboard_data.json')
@@ -103,7 +102,7 @@
                 rawRecords = payload.records;
                 distinctClasses = payload.material_classes;
 
-                // Build Location Dropdown Options
+                // Bind Locations Options
                 const locSelect = document.getElementById('locationFilter');
                 payload.site_locations.forEach(loc => {
                     const el = document.createElement('option');
@@ -112,7 +111,7 @@
                     locSelect.appendChild(el);
                 });
 
-                // Build Material Class Dropdown Options
+                // Bind Materials Options
                 const matSelect = document.getElementById('materialFilter');
                 distinctClasses.forEach(cls => {
                     const el = document.createElement('option');
@@ -121,32 +120,29 @@
                     matSelect.appendChild(el);
                 });
 
-                // Listen for filter selections
                 locSelect.addEventListener('change', renderDashboardComponents);
                 matSelect.addEventListener('change', renderDashboardComponents);
 
                 renderDashboardComponents();
-            });
+            })
+            .catch(err => console.error("Could not render dashboard data object stream:", err));
 
         function renderDashboardComponents() {
             const locFilter = document.getElementById('locationFilter').value;
             const matFilter = document.getElementById('materialFilter').value;
 
-            // Apply filters to dataset
+            // Apply dual combination filtering
             const filtered = rawRecords.filter(row => {
                 const matchLoc = (locFilter === "ALL" || row['Site Name'] === locFilter);
                 const matchMat = (matFilter === "ALL" || row['Material Class'] === matFilter);
                 return matchLoc && matchMat;
             });
 
-            // Recompute Total Cumulative Volume KPI
             let totalWeight = 0;
             let monthlyMap = {};
-            
-            // Nested structure for annual stack map: year -> material_class -> total weight
             let annualMap = { "2024": {}, "2025": {}, "2026": {} };
 
-            // Initialize all possible distinct categories to zero across year structures
+            // Initialize categories across tracked matrix scopes
             distinctClasses.forEach(cls => {
                 annualMap["2024"][cls] = 0;
                 annualMap["2025"][cls] = 0;
@@ -160,20 +156,17 @@
                 const cls = row['Material Class'];
 
                 totalWeight += w;
-
-                // Populate monthly chronological array sets
                 monthlyMap[m] = (monthlyMap[m] || 0) + w;
 
-                // Populate annual tracking metrics
                 if (annualMap[y] && annualMap[y].hasOwnProperty(cls)) {
                     annualMap[y][cls] += w;
                 }
             });
 
-            // Update Primary Numeric Label
+            // Set Primary Scorecard Display
             document.getElementById('kpi-weight').innerHTML = `${Math.round(totalWeight).toLocaleString()} <span class="text-sm font-medium text-slate-500">lbs</span>`;
 
-            // 1. Process Timeline Linear Visual Component
+            // 1. Render Timeline Graph
             const sortedMonths = Object.keys(monthlyMap).sort();
             const monthlyWeights = sortedMonths.map(m => monthlyMap[m]);
 
@@ -183,12 +176,12 @@
                 data: {
                     labels: sortedMonths,
                     datasets: [{
-                        label: 'Aggregated Pounds (lbs)',
+                        label: 'Pounds (lbs)',
                         data: monthlyWeights,
                         borderColor: 'rgb(185, 28, 28)',
                         backgroundColor: 'rgba(185, 28, 28, 0.04)',
-                        borderWidth: 2.5,
-                        tension: 0.15,
+                        borderWidth: 2,
+                        tension: 0.1,
                         fill: true
                     }]
                 },
@@ -199,16 +192,14 @@
                 }
             });
 
-            // 2. Process Stacked Column Charts Components
+            // 2. Render Stacked Annual Bar Charts
             const yearsArray = ["2024", "2025", "2026"];
-            
-            // Re-map category properties to individual data blocks
             const stackedDatasets = distinctClasses.map((cls, idx) => {
                 return {
                     label: cls,
                     data: yearsArray.map(yr => annualMap[yr][cls]),
                     backgroundColor: palette[idx % palette.length],
-                    barThickness: 45
+                    barThickness: 40
                 };
             });
 
@@ -224,7 +215,7 @@
                     maintainAspectRatio: false,
                     scales: {
                         x: { stacked: true },
-                        y: { stacked: true, title: { display: true, text: 'Total Pounds' } }
+                        y: { stacked: true, title: { display: true, text: 'Total Pounds Generated' } }
                     },
                     plugins: {
                         legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }
