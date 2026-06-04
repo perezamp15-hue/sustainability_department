@@ -17,7 +17,7 @@
             </div>
             
             <div class="bg-white/10 p-2.5 rounded-xl backdrop-blur-sm border border-white/10 w-full md:w-64">
-                <label for="materialFilter" class="block text-xs font-bold uppercase text-red-200 mb-1">Filter by Waste Type</label>
+                <label for="materialFilter" class="block text-xs font-bold uppercase text-red-200 mb-1">Filter by Material Class</label>
                 <select id="materialFilter" class="bg-white text-slate-900 text-sm rounded-lg block w-full p-2 border-0 focus:ring-2 focus:ring-red-400 outline-none">
                     <option value="ALL">Show All Waste Streams</option>
                 </select>
@@ -41,19 +41,40 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col h-[450px]">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col h-[400px]">
                 <h2 class="text-lg font-bold text-slate-900 mb-2">Disposal Timeline Insights</h2>
                 <div class="relative flex-1 min-h-0 w-full">
                     <canvas id="timelineChart"></canvas>
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col h-[450px]">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col h-[400px]">
                 <h2 class="text-lg font-bold text-slate-900 mb-2">Volume Distribution by Facility Site</h2>
                 <div class="relative flex-1 min-h-0 w-full">
                     <canvas id="siteChart"></canvas>
                 </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+            <h2 class="text-lg font-bold text-slate-900 mb-1">Manifest Logistics Log</h2>
+            <p class="text-slate-400 text-xs mb-4">Detailed breakdown of materials, collection sites, and costs.</p>
+            
+            <div class="overflow-x-auto rounded-xl border border-slate-100">
+                <table class="w-full text-sm text-left text-slate-500">
+                    <thead class="text-xs text-slate-700 uppercase bg-slate-50 border-b border-slate-100">
+                        <tr>
+                            <th class="px-4 py-3">Month</th>
+                            <th class="px-4 py-3">Facility Site & Address</th>
+                            <th class="px-4 py-3">Specific Material</th>
+                            <th class="px-4 py-3 text-right">Weight</th>
+                            <th class="px-4 py-3 text-right">Cost</th>
+                        </tr>
+                    </thead>
+                    <tbody id="manifestTableBody" class="divide-y divide-slate-100">
+                        </tbody>
+                </table>
             </div>
         </div>
     </main>
@@ -63,73 +84,86 @@
         let timelineChartInstance = null;
         let siteChartInstance = null;
 
-        // Fetch data from output target
         fetch('./dashboard_data.json')
             .then(res => res.json())
             .then(payload => {
                 rawData = payload.records;
                 
-                // Populate Filter Dropdown Menu Options from Material Class values
                 const selectElement = document.getElementById('materialFilter');
-                payload.material_types.forEach(type => {
+                payload.material_classes.forEach(type => {
                     const opt = document.createElement('option');
                     opt.value = type;
                     opt.textContent = type;
                     selectElement.appendChild(opt);
                 });
 
-                // Attach change event listener to the dropdown filter element
                 selectElement.addEventListener('change', renderDashboard);
-                
-                // Perform Initial Display Build
                 renderDashboard();
             });
 
         function renderDashboard() {
             const selectedFilter = document.getElementById('materialFilter').value;
             
-            // Apply filtering logic based on user selection
             const filteredData = selectedFilter === "ALL" 
                 ? rawData 
                 : rawData.filter(row => row['Material Class'] === selectedFilter);
 
-            // Calculate KPIs dynamically based on current filter state
             let totalWeight = 0;
             let totalCost = 0;
             let siteGroups = {};
             let timelineGroups = {};
+            
+            // Clear the existing data log table rows
+            const tableBody = document.getElementById('manifestTableBody');
+            tableBody.innerHTML = "";
 
-            filteredData.forEach(row => {
+            filteredData.forEach((row, index) => {
                 const w = row['Weight (lbs)'];
                 const c = row['Cost'];
                 const site = row['Site Name'] || "Unknown Site";
+                const addr = row['address'] || "No Address";
+                const mat = row['Material'] || "Unknown Item";
                 const date = row['MonthYear'];
 
                 totalWeight += w;
                 totalCost += c;
 
-                // Aggregate by site
                 siteGroups[site] = (siteGroups[site] || 0) + w;
                 
-                // Aggregate by timeline month
                 if(!timelineGroups[date]) {
                     timelineGroups[date] = { lbs: 0, cost: 0 };
                 }
                 timelineGroups[date].lbs += w;
                 timelineGroups[date].cost += c;
+
+                // INJECT ROW TO TABLE (Limit to top 150 rows for dashboard speed)
+                if (index < 150) {
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-slate-50/80 transition-colors";
+                    tr.innerHTML = `
+                        <td class="px-4 py-3 font-medium text-slate-900">${date}</td>
+                        <td class="px-4 py-3">
+                            <div class="font-semibold text-slate-800">${site}</div>
+                            <div class="text-xs text-slate-400 mt-0.5">${addr}</div>
+                        </td>
+                        <td class="px-4 py-3 font-mono text-xs text-slate-600">${mat}</td>
+                        <td class="px-4 py-3 text-right font-medium">${Math.round(w).toLocaleString()} lbs</td>
+                        <td class="px-4 py-3 text-right font-semibold text-emerald-600">${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(c)}</td>
+                    `;
+                    tableBody.appendChild(tr);
+                }
             });
 
-            // Update UI card strings
+            // Update KPI views
             document.getElementById('kpi-weight').innerHTML = `${Math.round(totalWeight).toLocaleString()} <span class="text-sm font-medium text-slate-500">lbs</span>`;
             document.getElementById('kpi-cost').textContent = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(totalCost);
             document.getElementById('kpi-records').textContent = filteredData.length.toLocaleString();
 
-            // Format variables for timeline chart updates
+            // Timeline calculations
             const sortedMonths = Object.keys(timelineGroups).sort();
             const timelineLbs = sortedMonths.map(m => timelineGroups[m].lbs);
             const timelineCosts = sortedMonths.map(m => timelineGroups[m].cost);
 
-            // Render/Update Timeline Chart
             if (timelineChartInstance) timelineChartInstance.destroy();
             timelineChartInstance = new Chart(document.getElementById('timelineChart').getContext('2d'), {
                 type: 'line',
@@ -150,11 +184,10 @@
                 }
             });
 
-            // Format variables for facility site visualization updates
+            // Site calculations
             const siteLabels = Object.keys(siteGroups);
             const siteValues = Object.values(siteGroups);
 
-            // Render/Update Facility Doughnut Chart
             if (siteChartInstance) siteChartInstance.destroy();
             siteChartInstance = new Chart(document.getElementById('siteChart').getContext('2d'), {
                 type: 'doughnut',
