@@ -1,0 +1,171 @@
+{
+    "kpis": {
+        "total_weight_lbs": 2336472.3,
+        "total_cost_usd": 9651696.38,
+        "total_records": 10287
+    },
+    "site_breakdown": [
+        {
+            "Site Name": "KECK MED OF USC DOWNTOWN LA",
+            "lbs": 205.4,
+            "cost": 103.566
+        },
+        {
+            "Site Name": "USC Health System - HC 1 & HC 2",
+            "lbs": 131766.0,
+            "cost": 133373.4
+        },
+        {
+            "Site Name": "USC Health System - HC 3",
+            "lbs": 90888.1,
+            "cost": 2140222.249
+        },
+        {
+            "Site Name": "USC Health System - HC 4",
+            "lbs": 19616.0,
+            "cost": 39593.670000000006
+        },
+        {
+            "Site Name": "USC Health System - Keck Hospital of USC",
+            "lbs": 1833655.2,
+            "cost": 4949326.12
+        },
+        {
+            "Site Name": "USC Health System - Norris Cancer Hospital",
+            "lbs": 260341.58,
+            "cost": 2389077.3742
+        }
+    ],
+    "monthly_timeline": [
+        {
+            "MonthYear": "2024-01",
+            "lbs": 0.0,
+            "cost": 0.0
+        },
+        {
+            "MonthYear": "2024-03",
+            "lbs": 0.0,
+            "cost": 0.0
+        },
+        {
+            "MonthYear": "2024-04",
+            "lbs": 0.0,
+            "cost": 0.0
+        },
+        {
+            "MonthYear": "2024-05",
+            "lbs": 420.6,
+            "cost": 369.774
+        },
+        {
+            "MonthYear": "2024-06",
+            "lbs": 1642.4,
+            "cost": 1047.936
+        },
+        {
+            "MonthYear": "2024-07",
+            "lbs": 17977.4,
+            "cost": 27921.196
+        },
+        {
+            "MonthYear": "2024-08",
+            "lbs": 12928.28,
+            "cost": 20151.8972
+        },
+        {
+            "MonthYear": "2024-09",
+            "lbs": 101727.4,
+            "cost": 94392.626
+        },
+        {
+            "MonthYear": "2024-10",
+            "lbs": 133212.0,
+            "cost": 116657.78
+        },
+        {
+            "MonthYear": "2024-11",
+            "lbs": 125087.0,
+            "cost": 110932.07
+        },
+        {
+            "MonthYear": "2024-12",
+            "lbs": 122756.0,
+            "cost": 110910.86
+        },
+        {
+            "MonthYear": "2025-01",
+            "lbs": 130587.0,
+            "cost": 111943.97
+        },
+        {
+            "MonthYear": "2025-02",
+            "lbs": 123468.0,
+            "cost": 113666.53
+        },
+        {
+            "MonthYear": "2025-03",
+            "lbs": 132990.0,
+            "cost": 115304.2
+        },
+        {
+            "MonthYear": "2025-04",
+            "lbs": 132340.2,
+            "cost": 116168.45
+        },
+        {
+            "MonthYear": "2025-05",
+            "lbs": 128702.0,
+            "cost": 117075.27
+        },
+        {
+            "MonthYear": "2025-06",
+            "lbs": 119693.0,
+            "cost": 114738.01000000001
+        },
+        {
+            "MonthYear": "2025-07",
+            "lbs": 123220.0,
+            "cost": 116027.39
+        },
+        {
+            "MonthYear": "2025-08",
+            "lbs": 121061.0,
+            "cost": 111217.49
+        },
+        {
+            "MonthYear": "2025-09",
+            "lbs": 120210.0,
+            "cost": 113903.3
+        },
+        {
+            "MonthYear": "2025-10",
+            "lbs": 121045.0,
+            "cost": 114971.26000000001
+        },
+        {
+            "MonthYear": "2025-11",
+            "lbs": 109159.0,
+            "cost": 100527.51000000001
+        },
+        {
+            "MonthYear": "2025-12",
+            "lbs": 115337.0,
+            "cost": 107797.33
+        },
+        {
+            "MonthYear": "2026-01",
+            "lbs": 118535.0,
+            "cost": 2695003.33
+        },
+        {
+            "MonthYear": "2026-02",
+            "lbs": 103681.0,
+            "cost": 2389471.55
+        },
+        {
+            "MonthYear": "2026-03",
+            "lbs": 120693.0,
+            "cost": 2731496.65
+        }
+    ]
+}
