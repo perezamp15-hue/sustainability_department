@@ -1,76 +1,80 @@
 import pandas as pd
-import requests
 import json
 import os
 import glob
+import requests
 
-# Online SharePoint config
-base_sharepoint = "https://keckmedicine-my.sharepoint.com/personal/miguel_gonzalez_med_usc_edu"
-doc_path = ":x:/g/personal/miguel_gonzalez_med_usc_edu/IQBOUo8yT_7MQ5MvTlv5MvcvAciCV_5EvAhQJMZTn1jqso4"
-sharepoint_url = f"{base_sharepoint}/_layouts/15/download.aspx?SourceUrl={base_sharepoint}/{doc_path}"
+sharepoint_url = "https://keckmedicine-my.sharepoint.com/personal/miguel_gonzalez_med_usc_edu/_layouts/15/download.aspx?SourceUrl=https://keckmedicine-my.sharepoint.com/personal/miguel_gonzalez_med_usc_edu/:x:/g/personal/miguel_gonzalez_med_usc_edu/IQBOUo8yT_7MQ5MvTlv5MvcvAciCV_5EvAhQJMZTn1jqso4"
 
 def run_pipeline():
-    all_dataframes = []
+    all_dfs = []
     
-    # 1. FETCH THE ONLINE LIVE SHAREPOINT FILE
-    print("Fetching live data from SharePoint...")
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
-    }
+    # 1. Pull from live URL
+    print("Pulling live data...")
+    headers = {"User-Agent": "Mozilla/5.0"}
     try:
-        response = requests.get(sharepoint_url, headers=headers)
-        if response.status_code == 200:
-            df_sharepoint = pd.read_excel(response.content, engine='openpyxl')
-            all_dataframes.append(df_sharepoint)
-            print(f"Loaded live SharePoint file: {len(df_sharepoint)} rows.")
+        res = requests.get(sharepoint_url, headers=headers)
+        if res.status_code == 200:
+            all_dfs.append(pd.read_excel(res.content, engine='openpyxl'))
     except Exception as e:
-        print(f"Warning: Could not fetch online SharePoint data: {e}. Moving to local files.")
+        print(f"URL failed: {e}")
 
-    # 2. SCAN AND LOAD ALL LOCAL EXCEL FILES
-    folder_path = "raw_data_inputs"
-    
-    # Ensure folder exists so script doesn't crash on first run
-    if not os.path.exists(folder_path):
-        os.makedirs(folder_path)
-        print(f"Created '{folder_path}' folder. Drop local Excel files here in the future.")
-        
-    # Search for any .xlsx or .xls files in that folder
-    excel_files = glob.glob(os.path.join(folder_path, "*.xlsx")) + glob.glob(os.path.join(folder_path, "*.xls"))
-    
-    print(f"Found {len(excel_files)} local files to consolidate.")
-    for file in excel_files:
-        try:
-            df_local = pd.read_excel(file, engine='openpyxl')
-            all_dataframes.append(df_local)
-            print(f"Successfully loaded local file '{os.path.basename(file)}': {len(df_local)} rows.")
-        except Exception as e:
-            print(f"Error loading file {file}: {e}")
+    # 2. Add local folder dumps
+    if os.path.exists("raw_data_inputs"):
+        files = glob.glob("raw_data_inputs/*.xlsx") + glob.glob("raw_data_inputs/*.xls")
+        for f in files:
+            try:
+                all_dfs.append(pd.read_excel(f, engine='openpyxl'))
+            except Exception as e:
+                print(f"Error reading local file {f}: {e}")
 
-    # 3. MERGE, CLEAN, AND REMOVE DUPLICATES
-    if not all_dataframes:
-        print("No data found to process.")
+    if not all_dfs:
+        print("No data available.")
         return
 
-    # Combine everything into one single massive dataframe
-    master_df = pd.concat(all_dataframes, ignore_index=True)
-    initial_count = len(master_df)
+    # Combine everything and drop duplicate rows
+    df = pd.concat(all_dfs, ignore_index=True)
+    df.drop_duplicates(inplace=True)
     
-    # Drop rows where every single column is empty
-    master_df.dropna(how='all', inplace=True)
+    # Clean up dates and values
+    df['Service Date'] = pd.to_datetime(df['Service Date'], errors='coerce')
+    df = df.dropna(subset=['Service Date'])
+    df['Weight (lbs)'] = pd.to_numeric(df['Weight (lbs)'], errors='coerce').fillna(0)
+    df['Cost'] = pd.to_numeric(df['Cost'], errors='coerce').fillna(0)
     
-    # CRITICAL: Removes duplicate rows across your files
-    master_df.drop_duplicates(inplace=True)
-    final_count = len(master_df)
+    # Extract Month/Year identifier for timelines
+    df['MonthYear'] = df['Service Date'].dt.to_period('M').astype(str)
     
-    print(f"Consolidation complete! Merged {initial_count} rows down to {final_count} unique rows.")
-
-    # 4. SAVE OUTPUT
-    transformed_data = master_df.to_dict(orient="records")
+    # 3. Create Dashboard Core Analytics
+    total_lbs = float(df['Weight (lbs)'].sum())
+    total_cost = float(df['Cost'].sum())
+    
+    # Break down metrics by Facility Site
+    site_breakdown = df.groupby('Site Name').agg(
+        lbs=('Weight (lbs)', 'sum'),
+        cost=('Cost', 'sum')
+    ).reset_index().to_dict(orient='records')
+    
+    # Break down historical monthly timeline patterns
+    timeline = df.groupby('MonthYear').agg(
+        lbs=('Weight (lbs)', 'sum'),
+        cost=('Cost', 'sum')
+    ).sort_index().reset_index().to_dict(orient='records')
+    
+    # Export structure optimized for the web frontend
+    dashboard_payload = {
+        "kpis": {
+            "total_weight_lbs": round(total_lbs, 1),
+            "total_cost_usd": round(total_cost, 2),
+            "total_records": len(df)
+        },
+        "site_breakdown": site_breakdown,
+        "monthly_timeline": timeline
+    }
+    
     with open("dashboard_data.json", "w") as f:
-        json.dump(transformed_data, f, indent=4)
-        
-    print("Master dataset saved to dashboard_data.json")
+        json.dump(dashboard_payload, f, indent=4)
+    print("Dashboard payload successfully compiled!")
 
 if __name__ == "__main__":
     run_pipeline()
