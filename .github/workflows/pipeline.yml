@@ -1,9 +1,12 @@
-name: SharePoint Data Refresh
+name: Consolidated Data Refresh
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # Runs automatically every single day at midnight
-  workflow_dispatch:      # Gives you a button in GitHub to run it manually whenever you want
+    - cron: '0 0 * * *'  # Runs nightly
+  push:
+    paths:
+      - 'raw_data_inputs/**'  # Runs IMMEDIATELY whenever you upload a new file to this folder
+  workflow_dispatch:
 
 jobs:
   refresh-data:
@@ -20,13 +23,13 @@ jobs:
     - name: Install Data Tools
       run: pip install pandas requests openpyxl
 
-    - name: Run Extraction Pipeline
+    - name: Run Consolidation Pipeline
       run: python fetch_data.py
 
-    - name: Commit Updated Data to GitHub
+    - name: Commit Master Dataset back to GitHub
       run: |
-        git config --global user.name "Data Pipeline Bot"
+        git config --global user.name "Data Consolidation Bot"
         git config --global user.email "actions@github.com"
         git add dashboard_data.json
-        git commit -m "Automated update of SharePoint data: $(date)" || exit 0
+        git commit -m "Automated compile of master table: $(date)" || exit 0
         git push
