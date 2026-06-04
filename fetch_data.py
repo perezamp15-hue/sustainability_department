@@ -18,8 +18,9 @@ def run_pipeline():
         if res.status_code == 200:
             df_online = pd.read_excel(io.BytesIO(res.content), sheet_name=target_sheet, engine='openpyxl')
             all_dfs.append(df_online)
+            print(f"Pulled {len(df_online)} rows from online source.")
     except Exception as e:
-        print(f"URL pull skipped: {e}")
+        print(f"SharePoint pull skipped: {e}")
 
     if os.path.exists("raw_data_inputs"):
         files = glob.glob("raw_data_inputs/*.xlsx") + glob.glob("raw_data_inputs/*.xls")
@@ -27,19 +28,23 @@ def run_pipeline():
             try:
                 df_local = pd.read_excel(f, sheet_name=target_sheet, engine='openpyxl')
                 all_dfs.append(df_local)
+                print(f"Loaded {len(df_local)} rows from local file: {os.path.basename(f)}")
             except Exception as e:
                 print(f"Skipped local file {f}: {e}")
 
     if not all_dfs:
-        print("Error: No data found.")
+        print("Error: No data sheets could be parsed.")
         return
 
     df = pd.concat(all_dfs, ignore_index=True)
     df.dropna(how='all', inplace=True)
     
-    # Standardize spaces and lower strings to match indices cleanly
+    # 1. Clean the headers into standardized lowercase strings
     df.columns = df.columns.str.strip().str.lower().str.replace(r'\s+', ' ', regex=True)
+    print(f"Standardized columns found in file: {list(df.columns)}")
 
+    # 2. Check and align expected raw keys to unified internal standard keys
+    # Raw file columns look like: 'service date', 'site name', 'material class', 'weight (lbs)'
     required_maps = {
         'service date': 'service_date',
         'site name': 'site_name',
@@ -47,25 +52,28 @@ def run_pipeline():
         'weight (lbs)': 'weight'
     }
 
-    for col in required_maps.keys():
-        if col not in df.columns:
-            matching_cols = [c for c in df.columns if col in c or c in col]
+    for target_raw, internal_name in required_maps.items():
+        if target_raw in df.columns:
+            df.rename(columns={target_raw: internal_name}, inplace=True)
+        else:
+            # Fallback search strategy if spaces vary slightly
+            matching_cols = [c for c in df.columns if target_raw in c or c in target_raw]
             if matching_cols:
-                df.rename(columns={matching_cols[0]: col}, inplace=True)
+                df.rename(columns={matching_cols[0]: internal_name}, inplace=True)
             else:
-                raise KeyError(f"Missing required column: '{col}'")
+                raise KeyError(f"Critical Column Missing! Looking for: '{target_raw}'. Columns found: {list(df.columns)}")
 
     df.drop_duplicates(inplace=True)
     
-    # Cast fields
-    df['service_date'] = pd.to_datetime(df['service date'], errors='coerce')
+    # 3. Clean and parse variables
+    df['service_date'] = pd.to_datetime(df['service_date'], errors='coerce')
     df = df.dropna(subset=['service_date'])
-    df['weight'] = pd.to_numeric(df['weight (lbs)'], errors='coerce').fillna(0)
+    df['weight'] = pd.to_numeric(df['weight'], errors='coerce').fillna(0)
     
     df['material_class'] = df['material_class'].astype(str).str.strip().fillna('Unclassified')
     df['site_name'] = df['site_name'].astype(str).str.strip().fillna('Unknown Site')
     
-    # Separate explicit chronological metrics
+    # Extract structural time grouping definitions
     df['MonthYear'] = df['service_date'].dt.to_period('M').astype(str)
     df['Year'] = df['service_date'].dt.year.astype(str)
     
@@ -80,7 +88,7 @@ def run_pipeline():
             "Weight (lbs)": float(row['weight'])
         })
         
-    # Compile distinct structural sorting keys
+    # Compile distinct options for layout filter blocks
     material_classes = sorted(list(set([r['Material Class'] for r in raw_records if r['Material Class'] not in ['nan', '']])))
     site_locations = sorted(list(set([r['Site Name'] for r in raw_records if r['Site Name'] not in ['nan', '']])))
     
@@ -93,7 +101,7 @@ def run_pipeline():
     with open("dashboard_data.json", "w") as f:
         json.dump(dashboard_payload, f, indent=4)
         
-    print(f"Data package ready! Packed {len(raw_records)} clean records for layout charts.")
+    print(f"Data package ready! Packed {len(raw_records)} clean records for the custom dashboard layout.")
 
 if __name__ == "__main__":
     run_pipeline()
