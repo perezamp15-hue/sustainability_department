@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surgical Efficiency & Waste Metrics</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen">
+
+    <header class="bg-slate-800 border-b border-slate-700 p-6 mb-8 shadow-xl">
+        <div class="max-w-5xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+                <h1 class="text-2xl font-black tracking-tight text-red-500">Surgical Waste Index Portal</h1>
+                <p class="text-slate-400 text-xs mt-0.5">Clinical Hours vs Biohazard Volumetric Ratios</p>
+            </div>
+            <a href="./index.html" class="text-xs bg-slate-700 hover:bg-slate-600 transition-colors text-slate-200 px-4 py-2 rounded-lg font-bold border border-slate-600 shadow-sm">
+                ← Back to Main Sustainability Dashboard
+            </a>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 pb-16">
+        
+        <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-6 mb-8 flex flex-col md:flex-row gap-6 justify-between items-start md:items-center">
+            <div class="max-w-2xl">
+                <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wider mb-1">Equation Logic Matrix Block</h3>
+                <p class="text-xs text-slate-400 leading-relaxed">
+                    This visualization displays your surgical efficiency footprint index. It isolates monthly accumulated <span class="text-red-400 font-semibold">Biohazard Waste</span> weights from manifests, scales them by a <span class="text-slate-200 font-mono">0.7</span> volume coefficient modifier, and divides that product by overall documented <span class="text-slate-200 font-semibold">Surgical Case Hours</span>.
+                </p>
+            </div>
+            <div class="bg-slate-900 border border-slate-700 p-3 rounded-xl font-mono text-center min-w-[200px] shrink-0">
+                <div class="text-[10px] text-slate-500 uppercase tracking-widest">Index Definition</div>
+                <div class="text-xs text-red-400 font-bold mt-1">(0.7 × Biohaz Lbs) ÷ Hours</div>
+            </div>
+        </div>
+
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6 h-[520px] flex flex-col shadow-2xl mb-8">
+            <div class="mb-4">
+                <h2 class="text-base font-bold text-slate-100">Monthly Surgery Footprint Variations</h2>
+                <p class="text-slate-500 text-xs">Higher bar values indicate elevated biohazard waste outputs generated per active surgical case hour.</p>
+            </div>
+            
+            <div class="relative flex-1 min-h-0 w-full">
+                <canvas id="efficiencyBarChart"></canvas>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-slate-400 leading-relaxed">
+            <div class="bg-slate-800/30 border border-slate-800 p-4 rounded-xl">
+                <strong class="text-slate-200 block mb-1">Interpretation Guide</strong>
+                If a specific month shows a spike in height, it suggests a higher concentration of biological disposal per hour of operation, highlighting an opportunity to review segregation practices in the OR during that period.
+            </div>
+            <div class="bg-slate-800/30 border border-slate-800 p-4 rounded-xl">
+                <strong class="text-slate-200 block mb-1">Data Cross-Aggregation</strong>
+                Because tracking IDs do not natively intersect between logs, calculations are automatically grouped and linked by shared month-and-year properties before computing formulas.
+            </div>
+        </div>
+        
+    </main>
+
+    <script>
+        fetch('./surgery_efficiency_data.json')
+            .then(res => res.json())
+            .then(data => {
+                const timelineLabels = data.map(row => row.label);
+                const metricRatios = data.map(row => row.metric);
+
+                const ctx = document.getElementById('efficiencyBarChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: timelineLabels,
+                        datasets: [{
+                            label: 'Biohazard Lbs (scaled 0.7) per Surgery Hour',
+                            data: metricRatios,
+                            backgroundColor: 'rgba(239, 68, 68, 0.85)',
+                            borderColor: 'rgb(239, 68, 68)',
+                            borderWidth: 1,
+                            borderRadius: 6,
+                            maxBarThickness: 40,
+                            hoverBackgroundColor: 'rgb(248, 113, 113)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                grid: { color: 'rgba(255, 255, 255, 0.04)' },
+                                ticks: { color: 'rgb(148, 163, 184)', font: { size: 11 } }
+                            },
+                            y: {
+                                grid: { color: 'rgba(255, 255, 255, 0.08)' },
+                                ticks: { color: 'rgb(148, 163, 184)' },
+                                title: {
+                                    display: true,
+                                    text: 'Index Ratio Value',
+                                    color: 'rgb(148, 163, 184)',
+                                    font: { size: 12, weight: 'bold' }
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    afterBody: function(context) {
+                                        const index = context[0].dataIndex;
+                                        const orig = data[index];
+                                        return `\nRaw Biohaz Weight: ${Math.round(orig.bio_weight).toLocaleString()} lbs\nTotal Surgery Volume: ${Math.round(orig.surg_hours).toLocaleString()} Hours`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(err => console.error("Error reading compiled surgery JSON file payload:", err));
+    </script>
+</body>
+</html>
