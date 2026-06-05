@@ -1,0 +1,104 @@
+[
+    {
+        "label": "October 2024",
+        "bio_weight": 100263.0,
+        "surg_hours": 2908.05,
+        "metric": 24.1344
+    },
+    {
+        "label": "November 2024",
+        "bio_weight": 94291.0,
+        "surg_hours": 2673.4333333333334,
+        "metric": 24.6887
+    },
+    {
+        "label": "December 2024",
+        "bio_weight": 91508.0,
+        "surg_hours": 2564.3,
+        "metric": 24.9798
+    },
+    {
+        "label": "January 2025",
+        "bio_weight": 99662.0,
+        "surg_hours": 2841.9,
+        "metric": 24.5482
+    },
+    {
+        "label": "February 2025",
+        "bio_weight": 91896.0,
+        "surg_hours": 2571.85,
+        "metric": 25.012
+    },
+    {
+        "label": "March 2025",
+        "bio_weight": 102137.0,
+        "surg_hours": 2796.366666666667,
+        "metric": 25.5674
+    },
+    {
+        "label": "April 2025",
+        "bio_weight": 100276.0,
+        "surg_hours": 2813.35,
+        "metric": 24.95
+    },
+    {
+        "label": "May 2025",
+        "bio_weight": 94391.0,
+        "surg_hours": 2820.7,
+        "metric": 23.4246
+    },
+    {
+        "label": "June 2025",
+        "bio_weight": 86623.0,
+        "surg_hours": 2758.766666666667,
+        "metric": 21.9794
+    },
+    {
+        "label": "July 2025",
+        "bio_weight": 90768.0,
+        "surg_hours": 3151.5666666666666,
+        "metric": 20.1606
+    },
+    {
+        "label": "August 2025",
+        "bio_weight": 90227.0,
+        "surg_hours": 2942.1833333333334,
+        "metric": 21.4667
+    },
+    {
+        "label": "September 2025",
+        "bio_weight": 88938.0,
+        "surg_hours": 2863.8166666666666,
+        "metric": 21.739
+    },
+    {
+        "label": "October 2025",
+        "bio_weight": 89646.0,
+        "surg_hours": 2981.4166666666665,
+        "metric": 21.0478
+    },
+    {
+        "label": "November 2025",
+        "bio_weight": 81597.0,
+        "surg_hours": 2540.05,
+        "metric": 22.4869
+    },
+    {
+        "label": "December 2025",
+        "bio_weight": 85889.0,
+        "surg_hours": 2758.133333333333,
+        "metric": 21.7982
+    },
+    {
+        "label": "January 2026",
+        "bio_weight": 85036.0,
+        "surg_hours": 2916.0833333333335,
+        "metric": 20.4127
+    },
+    {
+        "label": "February 2026",
+        "bio_weight": 72437.0,
+        "surg_hours": 2482.483333333333,
+        "metric": 20.4255
+    }
+]
