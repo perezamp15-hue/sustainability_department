@@ -3,135 +3,225 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Waste Wisely Environmental Dashboard</title>
+    <title>Waste Wisely Operational Analytics Hub</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen">
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
 
-    <header class="bg-red-700 text-white shadow-md p-6 mb-8">
-        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+    <header class="bg-red-700 text-white shadow-md px-6 py-5">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-                <h1 class="text-3xl font-extrabold tracking-tight">Waste Wisely Insights Dashboard</h1>
-                <p class="text-red-100 text-sm mt-1">Keck Medicine • Operational Logistics & Sustainability Metrics</p>
+                <h1 class="text-2xl font-black tracking-tight">Waste Wisely Analytics Hub</h1>
+                <p class="text-red-100 text-xs mt-0.5">Keck Medicine • Operations & Environmental Sustainability Portal</p>
             </div>
             
-            <div class="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-                <div class="bg-white/10 p-2 rounded-xl backdrop-blur-sm border border-white/10 min-w-[200px]">
-                    <label for="locationFilter" class="block text-[10px] font-bold uppercase text-red-200 mb-1">Filter Facility Location</label>
-                    <select id="locationFilter" class="bg-white text-slate-900 text-xs rounded-lg block w-full p-2 border-0 outline-none">
-                        <option value="ALL">All Facilities combined</option>
-                    </select>
-                </div>
-
-                <div class="bg-white/10 p-2 rounded-xl backdrop-blur-sm border border-white/10 min-w-[200px]">
-                    <label for="materialFilter" class="block text-[10px] font-bold uppercase text-red-200 mb-1">Filter Material Class</label>
-                    <select id="materialFilter" class="bg-white text-slate-900 text-xs rounded-lg block w-full p-2 border-0 outline-none">
-                        <option value="ALL">All Material Classes combined</option>
-                    </select>
-                </div>
+            <div class="flex bg-white/10 p-1 rounded-xl backdrop-blur-xs border border-white/10">
+                <button id="nav-sustainability" onclick="switchTab('sustainability')" class="cursor-pointer text-xs font-bold px-4 py-2 rounded-lg transition-all bg-white text-slate-900 shadow-xs">
+                    Sustainability Overview
+                </button>
+                <button id="nav-surgery" onclick="switchTab('surgery')" class="cursor-pointer text-xs font-bold px-4 py-2 rounded-lg transition-all text-white hover:bg-white/10">
+                    Surgical OR Efficiency
+                </button>
             </div>
         </div>
     </header>
 
-    <main class="max-w-6xl mx-auto px-4 pb-16">
-        
-        <div class="max-w-md mx-auto mb-10">
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-6 text-center">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Total Evaluated Waste Volume</p>
-                <h3 class="text-5xl font-black text-slate-900 tracking-tight mt-2" id="kpi-weight">0 <span class="text-lg font-medium text-slate-500">lbs</span></h3>
-                <p class="text-slate-400 text-xs mt-2">Adjusting dropdown filters computes cumulative records on demand.</p>
+    <main class="max-w-6xl w-full mx-auto px-4 py-8 flex-1">
+
+        <div id="view-sustainability" class="space-y-8">
+            
+            <div class="bg-white rounded-xl shadow-xs border border-slate-200/60 p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h2 class="text-sm font-bold text-slate-900">Environmental Filtering Matrix</h2>
+                    <p class="text-slate-400 text-[11px]">Adjust drop-downs to filter general facility metrics.</p>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                    <div class="min-w-[180px]">
+                        <select id="locationFilter" class="bg-slate-100 text-slate-900 text-xs font-medium rounded-lg block w-full p-2 border border-slate-200 outline-none">
+                            <option value="ALL">All Facilities combined</option>
+                        </select>
+                    </div>
+                    <div class="min-w-[180px]">
+                        <select id="materialFilter" class="bg-slate-100 text-slate-900 text-xs font-medium rounded-lg block w-full p-2 border border-slate-200 outline-none">
+                            <option value="ALL">All Material Classes combined</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="max-w-xs mx-auto">
+                <div class="bg-white rounded-2xl shadow-xs border border-slate-200 p-5 text-center">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Evaluated Waste Volume</p>
+                    <h3 class="text-4xl font-black text-slate-900 tracking-tight mt-1" id="kpi-weight">0 <span class="text-base font-medium text-slate-500">lbs</span></h3>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white rounded-2xl shadow-xs border border-slate-200/60 p-5 flex flex-col h-[380px]">
+                    <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-0.5">Disposal Timeline Trends</h4>
+                    <p class="text-slate-400 text-[11px] mb-4">Monthly historical volume outputs tracked sequentially.</p>
+                    <div class="relative flex-1 min-h-0 w-full">
+                        <canvas id="timelineChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-xs border border-slate-200/60 p-5 flex flex-col h-[380px]">
+                    <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-0.5">Annual Structural Waste Summary</h4>
+                    <p class="text-slate-400 text-[11px] mb-4">Comparison of overall categorical waste weights across calendar years.</p>
+                    <div class="relative flex-1 min-h-0 w-full">
+                        <canvas id="annualStackedChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-slate-100 border border-slate-200 rounded-2xl p-5">
+                <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-1">How Waste Sourcing is Monitored & Modeled</h3>
+                <p class="text-[11px] text-slate-500 leading-relaxed mb-4">
+                    This asset parses raw structured manifests directly tied to shipping logs. Data flows through a four-tier synchronization model:
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-center text-[11px]">
+                    <div class="bg-white p-3 rounded-xl border border-slate-200/60 shadow-2xs">
+                        <div class="text-red-700 font-bold mb-0.5">1. Manifest Entry</div>
+                        <div class="text-slate-400">Logistics items get tracked by individual weights at processing docks.</div>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-slate-200/60 shadow-2xs">
+                        <div class="text-red-700 font-bold mb-0.5">2. Aggregation</div>
+                        <div class="text-slate-400">Manifest rows automatically sync inside the master database tabs.</div>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-slate-200/60 shadow-2xs">
+                        <div class="text-red-700 font-bold mb-0.5">3. Compilation</div>
+                        <div class="text-slate-400">Automated Python jobs clean tracking indexes and labels daily.</div>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-slate-200/60 shadow-2xs">
+                        <div class="text-red-700 font-bold mb-0.5">4. Visual Analysis</div>
+                        <div class="text-slate-400">The user interface transforms arrays to calculate summaries on demand.</div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col h-[400px]">
-                <h2 class="text-base font-bold text-slate-900 mb-1">Disposal Timeline Trends</h2>
-                <p class="text-slate-400 text-xs mb-4">Monthly historical volume outputs tracked sequentially.</p>
+        <div id="view-surgery" class="hidden space-y-8">
+            
+            <div class="bg-slate-900 text-slate-100 border border-slate-800 rounded-2xl p-5 flex flex-col md:flex-row gap-6 justify-between items-start md:items-center shadow-md">
+                <div class="max-w-2xl">
+                    <h3 class="text-xs font-bold text-red-400 uppercase tracking-wider mb-1">Cross-Tabular Efficiency Calculation</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        This view isolates clinical footprint metrics by linking independent datasets. The engine aggregates raw weights from the biohazard log tab, modifies them by a fixed scale modifier, and divides the result by total active operating hours from your case log tab.
+                    </p>
+                </div>
+                <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl font-mono text-center min-w-[210px] shrink-0">
+                    <div class="text-[9px] text-slate-500 uppercase tracking-widest">Mathematical Formula</div>
+                    <div class="text-xs text-red-400 font-bold mt-1">Ratio = (0.7 × Biohaz Lbs) ÷ Hours</div>
+                </div>
+            </div>
+
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 h-[480px] flex flex-col shadow-xs">
+                <div class="mb-4">
+                    <h3 class="text-sm font-bold text-slate-900">Monthly Operating Room Footprint Index</h3>
+                    <p class="text-slate-400 text-xs">Elevated bars indicate a higher ratio of biohazard waste generation per scheduled case hour.</p>
+                </div>
                 <div class="relative flex-1 min-h-0 w-full">
-                    <canvas id="timelineChart"></canvas>
+                    <canvas id="efficiencyBarChart"></canvas>
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col h-[400px]">
-                <h2 class="text-base font-bold text-slate-900 mb-1">Annual Structural Waste Summary</h2>
-                <p class="text-slate-400 text-xs mb-4">Comparison of categorical waste weights across calendar years.</p>
-                <div class="relative flex-1 min-h-0 w-full">
-                    <canvas id="annualStackedChart"></canvas>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-slate-500 leading-relaxed">
+                <div class="bg-white border border-slate-200 p-4 rounded-xl shadow-2xs">
+                    <strong class="text-slate-800 block mb-1">Data Cross-Aggregation Matrix</strong>
+                    Because manifest log identities do not natively overlap, the operational compiler dynamically joins and matches parameters across time variables (Month and Year dimensions) before parsing the index formula.
+                </div>
+                <div class="bg-white border border-slate-200 p-4 rounded-xl shadow-2xs">
+                    <strong class="text-slate-800 block mb-1">Optimization Application</strong>
+                    Month-over-month variations spotlight efficiency drops. Spikes serve as a clear indicator to review compliance, waste segregation practices, and bag utilization metrics directly inside processing suites.
                 </div>
             </div>
         </div>
 
-        <div class="bg-slate-100 border border-slate-200 rounded-2xl p-6">
-            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-2">How Waste Sourcing is Monitored & Modeled</h3>
-            <p class="text-xs text-slate-600 leading-relaxed mb-4">
-                This environment compiles shipping logs to map systemic sustainability trends. Data synchronizes across a four-tier architecture:
-            </p>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
-                <div class="bg-white p-3 rounded-xl shadow-xs border border-slate-200/50">
-                    <div class="text-red-700 font-bold text-sm mb-1">1. Manifest Entry</div>
-                    <div class="text-[11px] text-slate-500">Logistics teams assign tracking IDs, locations, weights, and categories at delivery docks.</div>
-                </div>
-                <div class="bg-white p-3 rounded-xl shadow-xs border border-slate-200/50">
-                    <div class="text-red-700 font-bold text-sm mb-1">2. Aggregation</div>
-                    <div class="text-[11px] text-slate-500">Manifest details sync directly inside your shared database master spreadsheet tabs.</div>
-                </div>
-                <div class="bg-white p-3 rounded-xl shadow-xs border border-slate-200/50">
-                    <div class="text-red-700 font-bold text-sm mb-1">3. Compilation</div>
-                    <div class="text-[11px] text-slate-500">Automated Python workflows validate and strip extra whitespace out of row indices daily.</div>
-                </div>
-                <div class="bg-white p-3 rounded-xl shadow-xs border border-slate-200/50">
-                    <div class="text-red-700 font-bold text-sm mb-1">4. Visual Analysis</div>
-                    <div class="text-[11px] text-slate-500">Frontend frameworks break down volume summaries and stack annual variables interactively.</div>
-                </div>
-            </div>
-        </div>
     </main>
 
     <script>
+        // Core global variables
         let rawRecords = [];
         let distinctClasses = [];
+        let surgeryDataPayload = null;
+
+        // Chart instances tracking objects
         let timelineChartInstance = null;
         let annualChartInstance = null;
+        let surgicalChartInstance = null;
 
+        // Visual categorical styling color palette
         const palette = ['#b91c1c', '#1e293b', '#d97706', '#0d9488', '#4f46e5', '#ec4899', '#84cc16', '#6b7280'];
 
-        fetch('./dashboard_data.json')
-            .then(res => res.json())
-            .then(payload => {
-                rawRecords = payload.records;
-                distinctClasses = payload.material_classes;
+        // Initializer: Fetch both datasets asynchronously on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            Promise.all([
+                fetch('./dashboard_data.json').then(r => r.json()),
+                fetch('./surgery_efficiency_data.json').then(r => r.json()).catch(() => null)
+            ]).then(([sustainabilityPayload, surgeryPayload]) => {
+                
+                // Bind Tab 1 data variables
+                rawRecords = sustainabilityPayload.records;
+                distinctClasses = sustainabilityPayload.material_classes;
+                surgeryDataPayload = surgeryPayload;
 
-                // Bind Locations Options
+                // Build Dropdown Selectors
                 const locSelect = document.getElementById('locationFilter');
-                payload.site_locations.forEach(loc => {
+                sustainabilityPayload.site_locations.forEach(loc => {
                     const el = document.createElement('option');
-                    el.value = loc;
-                    el.textContent = loc;
+                    el.value = loc; el.textContent = loc;
                     locSelect.appendChild(el);
                 });
 
-                // Bind Materials Options
                 const matSelect = document.getElementById('materialFilter');
                 distinctClasses.forEach(cls => {
                     const el = document.createElement('option');
-                    el.value = cls;
-                    el.textContent = cls;
+                    el.value = cls; el.textContent = cls;
                     matSelect.appendChild(el);
                 });
 
-                locSelect.addEventListener('change', renderDashboardComponents);
-                matSelect.addEventListener('change', renderDashboardComponents);
+                // Attach filtering change listeners
+                locSelect.addEventListener('change', renderSustainabilityTab);
+                matSelect.addEventListener('change', renderSustainabilityTab);
 
-                renderDashboardComponents();
-            })
-            .catch(err => console.error("Could not render dashboard data object stream:", err));
+                // Initialize the active default view
+                renderSustainabilityTab();
+            });
+        });
 
-        function renderDashboardComponents() {
+        // Tab Navigation Switcher Engine
+        function switchTab(targetId) {
+            const btnSust = document.getElementById('nav-sustainability');
+            const btnSurg = document.getElementById('nav-surgery');
+            const viewSust = document.getElementById('view-sustainability');
+            const viewSurg = document.getElementById('view-surgery');
+
+            if (targetId === 'sustainability') {
+                // Update navigation selection styling
+                btnSust.className = "cursor-pointer text-xs font-bold px-4 py-2 rounded-lg transition-all bg-white text-slate-900 shadow-xs";
+                btnSurg.className = "cursor-pointer text-xs font-bold px-4 py-2 rounded-lg transition-all text-white hover:bg-white/10";
+                
+                // Adjust active workspace containers
+                viewSust.classList.remove('hidden');
+                viewSurg.classList.add('hidden');
+            } else {
+                btnSurg.className = "cursor-pointer text-xs font-bold px-4 py-2 rounded-lg transition-all bg-white text-slate-900 shadow-xs";
+                btnSust.className = "cursor-pointer text-xs font-bold px-4 py-2 rounded-lg transition-all text-white hover:bg-white/10";
+                
+                viewSust.classList.add('hidden');
+                viewSurg.classList.remove('hidden');
+
+                // Delayed on-demand initialization for the hidden canvas
+                renderSurgeryTab();
+            }
+        }
+
+        // Processing Logic for Tab 1 (Sustainability Summary charts)
+        function renderSustainabilityTab() {
             const locFilter = document.getElementById('locationFilter').value;
             const matFilter = document.getElementById('materialFilter').value;
 
-            // Apply dual combination filtering
             const filtered = rawRecords.filter(row => {
                 const matchLoc = (locFilter === "ALL" || row['Site Name'] === locFilter);
                 const matchMat = (matFilter === "ALL" || row['Material Class'] === matFilter);
@@ -142,7 +232,6 @@
             let monthlyMap = {};
             let annualMap = { "2024": {}, "2025": {}, "2026": {} };
 
-            // Initialize categories across tracked matrix scopes
             distinctClasses.forEach(cls => {
                 annualMap["2024"][cls] = 0;
                 annualMap["2025"][cls] = 0;
@@ -163,10 +252,9 @@
                 }
             });
 
-            // Set Primary Scorecard Display
-            document.getElementById('kpi-weight').innerHTML = `${Math.round(totalWeight).toLocaleString()} <span class="text-sm font-medium text-slate-500">lbs</span>`;
+            document.getElementById('kpi-weight').innerHTML = `${Math.round(totalWeight).toLocaleString()} <span class="text-base font-medium text-slate-500">lbs</span>`;
 
-            // 1. Render Timeline Graph
+            // 1. Line Timeline Chart
             const sortedMonths = Object.keys(monthlyMap).sort();
             const monthlyWeights = sortedMonths.map(m => monthlyMap[m]);
 
@@ -192,7 +280,7 @@
                 }
             });
 
-            // 2. Render Stacked Annual Bar Charts
+            // 2. Annual Stacked Bar Chart
             const yearsArray = ["2024", "2025", "2026"];
             const stackedDatasets = distinctClasses.map((cls, idx) => {
                 return {
@@ -219,6 +307,53 @@
                     },
                     plugins: {
                         legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } }
+                    }
+                }
+            });
+        }
+
+        // On-Demand Render Logic for Tab 2 (Surgical Efficiency Index)
+        function renderSurgeryTab() {
+            if (!surgeryDataPayload || surgicalChartInstance) return;
+
+            const timelineLabels = surgeryDataPayload.map(row => row.label);
+            const metricRatios = surgeryDataPayload.map(row => row.metric);
+
+            const ctx = document.getElementById('efficiencyBarChart').getContext('2d');
+            surgicalChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: timelineLabels,
+                    datasets: [{
+                        label: 'Footprint Ratio',
+                        data: metricRatios,
+                        backgroundColor: 'rgba(239, 68, 68, 0.85)',
+                        borderColor: 'rgb(239, 68, 68)',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        maxBarThickness: 35
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: {
+                            title: { display: true, text: 'Calculated Index Output Factor', font: { weight: 'bold' } }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                afterBody: function(context) {
+                                    const idx = context[0].dataIndex;
+                                    const orig = surgeryDataPayload[idx];
+                                    return `\nRaw Biohaz Weight: ${Math.round(orig.bio_weight).toLocaleString()} lbs\nTotal Surgery Volume: ${Math.round(orig.surg_hours).toLocaleString()} Hours`;
+                                }
+                            }
+                        }
                     }
                 }
             });
